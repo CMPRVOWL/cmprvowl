@@ -1,6 +1,6 @@
 <?php
     
-	$db = mysqli_connect('localhost', 'root', '', 'register');
+	require('db.php');
 
 	// initialize variables
 
@@ -17,7 +17,7 @@
     $fileSize = $_FILES['myfile']['size'];
     $fileTmpName  = $_FILES['myfile']['tmp_name'];
     $fileType = $_FILES['myfile']['type'];
-    // $fileExtension = strtolower(end(explode('.',$fileName)));
+  	
 	$fileExt = explode('.',$FileName);
 	$fileExtension = strtolower(end($fileExt));
     $uploadPath = $currentDir . $uploadDirectory . basename($FileName); 
@@ -29,13 +29,20 @@
         }
 
         if ($fileSize > 5000000) {
-            $errors[] = "This file is more than 2MB. Sorry, it has to be less than or equal to 5MB";
+            $errors[] = "This file is more than 5MB. Sorry, it has to be less than or equal to 5MB";
         }
 
         if (empty($errors)) {
+			
             $didUpload = move_uploaded_file($fileTmpName, $uploadPath);
-				$FileDesc = $_POST['FileDesc'];			
-				mysqli_query($db, "INSERT INTO documents (FileName, FileDesc) VALUES ('$FileName', '$FileDesc')"); 
+			
+			    // removes backslashes
+				
+				$FileDesc = stripslashes ($_POST['FileDesc']);	
+				
+				//escapes special characters in a string
+			$FileName = mysqli_real_escape_string($db,$FileName);	
+				mysqli_query($con, "INSERT INTO documents (FileName, FileDesc) VALUES ('$FileName', '$FileDesc')"); 
 				$_SESSION['message'] = "Document Details Saved!"; 
 				header('location: uploaddoc.php');
 
